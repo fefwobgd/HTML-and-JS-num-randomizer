@@ -81,19 +81,20 @@ function finalize(content, config) {
     navigator.clipboard.writeText(updatedContent).then(() => {
       alert("Modified content copied back to clipboard!");
     });
-  } else {
-    downloadFile(updatedContent);
   }
 }
 
-function downloadFile(content) {
-  const blob = new Blob([content], {type: "text/plain"});
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = "randomized_output.txt";
-  a.click();
-
-  URL.revokeObjectURL(url);
+function copyOutput() {
+  const outputText = document.getElementById('output').textContent;
+  if (!outputText.trim()) {
+    alert("No content to copy!");
+    return;
+  }
+  navigator.clipboard.writeText(outputText)
+    .then(() => {
+      alert("Output copied to clipboard!");
+    })
+    .catch((err) => {
+      alert("Failed to copy output: " + err);
+    });
 }
