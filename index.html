@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Number Randomizer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🔢 Number Randomizer</h1>
+
+<div class="config-group">
+  <label><input type="checkbox" id="CTCB"> Process from Clipboard?</label>
+  <label><input type="checkbox" id="INT_TD" checked> Randomize 3-Digit Numbers?</label>
+  <label><input type="checkbox" id="INT_FD" checked> Randomize 4-Digit Numbers?</label>
+  <label><input type="checkbox" id="INWLNTN" checked> Process Numbers with Letters?</label>
+  <label><input type="checkbox" id="MNUM" checked> Maybe Keep Some Numbers?</label>
+  <label>Intensity: <input type="number" id="INTENSITY" value="50" min="0" max="100">% Randomization</label>
+
+  <input type="file" id="fileInput" accept=".txt">
+</div>
+
+<button onclick="processContent()">Process Text</button>
+
+<pre id="output" placeholder="Output will appear here..."></pre>
+
+<script src="script.js"></script>
+</body>
+</html>
