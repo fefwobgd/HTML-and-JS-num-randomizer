@@ -1,32 +1,38 @@
 function getConfig() {
+  const maxValInput = parseInt(document.getElementById('MAXVAL').value, 10);
   return {
     CTCB: document.getElementById('CTCB').checked,
     INT_TD: document.getElementById('INT_TD').checked,
     INT_FD: document.getElementById('INT_FD').checked,
     INWLNTN: document.getElementById('INWLNTN').checked,
     MNUM: document.getElementById('MNUM').checked,
+    NOEXCEED: document.getElementById('NOEXCEED').checked,
+    MAXVAL: isNaN(maxValInput) ? null : maxValInput,
     INTENSITY: parseInt(document.getElementById('INTENSITY').value, 10)
   };
 }
 
 function randomizeNumbers(content, config) {
+  function boundedRandom(min, originalMax, categoryMax) {
+    let max = categoryMax;
+    if (config.NOEXCEED) {
+      max = config.MAXVAL !== null ? Math.min(config.MAXVAL, originalMax) : originalMax;
+    }
+    if (max < min) return String(min); // fallback
+    return String(Math.floor(Math.random() * (max - min + 1)) + min);
+  }
+
   function replacer(match) {
-    let num = parseInt(match, 10);
+    const num = parseInt(match, 10);
+    if (Math.random() * 100 > config.INTENSITY) return match;
+    if (config.MNUM && Math.random() < 0.5) return match;
 
-    if (Math.random() * 100 > config.INTENSITY) {
-      return match;
-    }
-
-    if (config.MNUM && Math.random() < 0.5) {
-      return match;
-    }
-
-    if (0 <= num && num <= 10) {
-      return String(Math.floor(Math.random() * 11));
+    if (num <= 10) {
+      return boundedRandom(0, num, 10);
     } else if (config.INT_TD && num >= 100 && num <= 999) {
-      return String(Math.floor(Math.random() * 900) + 100);
+      return boundedRandom(100, num, 999);
     } else if (config.INT_FD && num >= 1000 && num <= 9999) {
-      return String(Math.floor(Math.random() * 9000) + 1000);
+      return boundedRandom(1000, num, 9999);
     }
 
     return match;
@@ -51,7 +57,7 @@ async function processContent() {
     try {
       content = await navigator.clipboard.readText();
     } catch (err) {
-      alert("Failed to access clipboard: " + err);
+      alert("Failed to read clipboard: " + err);
       return;
     }
   } else {
@@ -60,13 +66,11 @@ async function processContent() {
       alert("Please select a file.");
       return;
     }
-    const file = fileInput.files[0];
     const reader = new FileReader();
     reader.onload = function(e) {
-      content = e.target.result;
-      finalize(content, config);
+      finalize(e.target.result, config);
     };
-    reader.readAsText(file);
+    reader.readAsText(fileInput.files[0]);
     return;
   }
 
@@ -79,22 +83,18 @@ function finalize(content, config) {
 
   if (config.CTCB) {
     navigator.clipboard.writeText(updatedContent).then(() => {
-      alert("Modified content copied back to clipboard!");
+      alert("Modified content copied to clipboard!");
     });
   }
 }
 
 function copyOutput() {
-  const outputText = document.getElementById('output').textContent;
-  if (!outputText.trim()) {
-    alert("No content to copy!");
+  const text = document.getElementById('output').textContent;
+  if (!text.trim()) {
+    alert("Nothing to copy!");
     return;
   }
-  navigator.clipboard.writeText(outputText)
-    .then(() => {
-      alert("Output copied to clipboard!");
-    })
-    .catch((err) => {
-      alert("Failed to copy output: " + err);
-    });
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Output copied to clipboard!");
+  });
 }
